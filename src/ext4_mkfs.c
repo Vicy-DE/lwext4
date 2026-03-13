@@ -359,7 +359,15 @@ static int write_bgroups(struct ext4_blockdev *bd, struct fs_aux_info *aux_info,
 		uint32_t blk_off = 0;
 
 		bg_desc = (void *)(aux_info->bg_desc_blk + k * dsc_size);
-		bg_free_blk = info->blocks_per_group -
+		uint32_t blocks_in_group = info->blocks_per_group;
+		if (i == aux_info->groups - 1) {
+			uint32_t rem = (uint32_t)((aux_info->len_blocks -
+				aux_info->first_data_block) %
+				info->blocks_per_group);
+			if (rem != 0)
+				blocks_in_group = rem;
+		}
+		bg_free_blk = blocks_in_group -
 				aux_info->inode_table_blocks;
 
 		bg_free_blk -= 2;
